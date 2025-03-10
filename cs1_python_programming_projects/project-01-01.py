@@ -23,7 +23,14 @@ def convert_rods_to_minutes(rods):
 
 
 if __name__ == '__main__':
-    rods = float(input("Input rods: "))
+    while True:
+        rods = input("Input rods: ")
+        try:
+            rods = float(rods)
+            break
+        except Exception:
+            print("Please enter a valid number")
+        print("\n")
     print(f"You input {rods} rods.")
     meters = convert_rods_to_meters(rods)
     feet = convert_rods_to_foot(rods)

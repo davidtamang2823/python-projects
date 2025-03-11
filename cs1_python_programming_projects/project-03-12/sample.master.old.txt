@@ -1,0 +1,5 @@
+100000   43736.57 MacGregor, Charlotte D.
+100789 5681745.99 Williamson, Bryan
+320056       5.01 Canady, George Lucas
+650430    2398.12 Fremont, Lorraine Elizabeth
+999999

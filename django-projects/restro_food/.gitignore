@@ -1,0 +1,7 @@
+docker-compose-local.yaml
+docker-compose-prod.yaml
+.dockerignore
+.local.env
+.prod.env
+./nginx/nginx-local.conf
+./nginx/nginx-prod.conf

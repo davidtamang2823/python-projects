@@ -1,0 +1,1 @@
+USER_REGISTRATION= "user_registration"

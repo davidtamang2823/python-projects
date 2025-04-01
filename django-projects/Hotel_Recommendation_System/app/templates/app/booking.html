@@ -1,0 +1,221 @@
+{% extends 'app/parent.html'%}
+
+
+{% block title %}Hotel booking {% endblock %}
+
+
+{% block body %}
+
+{% include 'app/navbar.html'%}
+
+<div class="container-fluid">
+
+<p><b>Hotel name: </b>{{hotel.hotel_name}}</p>
+<p><img src="{{hotel.hotel_pic.url}}" height="200px" width="200px" alt="{{hotel.hotel_name}} pic"></p>
+<p> <b>Rating: </b> {{hotel.hotel_rating}}</p>
+<p><b>Location: </b> {{hotel.location.address_name}}</p>
+<p>{{hotel.hotel_description}}</p>
+<p> <b>Hotel type: </b> {{hotel.hotel_type.hotel_type_names}}</p>
+
+{% if isCurrentBooking %}
+<p><a href="/cancel/booking/{{hotel.destination.destination_name}}/{{hotel.hotel_name}}/{{hotel.id}}" class="btn btn-danger">Cancel</a></p>
+{% endif %}
+<ul>
+
+    <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th scope="col">Room Type</th>
+            <th scope="col">Room Description</th>
+            <th scope="col">Room Amenities</th>
+            <th scope="col">Price</th>
+            <th scope="col">Child Guest</th>
+            <th scope="col">Adult Guest</th>
+            <th scope="col">Room Available</th>
+          </tr>
+        </thead>
+    
+        <tbody>
+        {% for r in room%}
+          <tr>
+           
+            <td>{{r.room_type.room_type_names}}</td>
+            <td>{{r.room_type.room_type_description}}</td>
+            <td>
+            
+                    <ul>
+                        {% for a,b in amenities.items%}
+                       
+                        {% if r.room_type.room_type_names == a %}
+
+                            {% for x in b%}
+                                <li>{{x}}</li>
+                            {% endfor %}
+                            
+                        {% endif %}     
+                         
+                        {% endfor %}
+                    </ul>
+                
+            </td>
+            <td>{{r.room_rent_price}}</td>
+            <td>{{r.total_capacity_of_child_guest}}</td>
+            <td>{{r.total_capacity_of_adult_guest}}</td>
+            <td></td>
+
+          </tr>
+        {% endfor %}
+        </tbody>
+    
+      </table>
+
+</ul>
+</div>
+
+
+{% if not isBooked%}
+<div class="container">
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li{% if message.tags %} class="text-{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    <form method="POST">
+
+        {% csrf_token %}
+        <div>
+        <label for="cid">Check-in date</label>
+        <input type="date" name="check-in-date" id="cid"  required>
+    </div>
+
+    <div>
+        <label for="cod">Check-out date</label>
+        <input type="date" name="check-out-date" id="cod" required>
+        
+    </div>
+
+    <div>
+        <label for="booking-hour">Check in and check out hours:</label>
+        <select name="booking-hour" id="booking-hour" required>
+            {% for bhr in booking_hours%}
+                <option value="{{bhr.id}}">{{bhr.hotel_check_in_hour}} - {{bhr.hotel_check_out_hour}} </option>
+            {% endfor %}
+        </select>
+    </div>
+
+
+    <div>
+        
+            {% for x in room%}
+
+            <div>
+            <label >{{x.room_type.room_type_names}}</label>
+
+            <select name="{{x.room_type.room_type_names}}" onclick="f(this)" required>
+                <option value="0" default>0</option>
+                {% for br1, br2 in brn.items %}
+                    {% if br1 == x.room_type.room_type_names%}
+                        {% for val in br2%}
+                            <option value="{{val}}">
+                                {{val}}
+                            </option>
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+            </select>
+
+            </div>
+
+            <div id="{{x.room_type.room_type_names}}">
+
+            </div>
+
+            <div id="{{x.room_type.room_type_names}}">
+
+            </div>
+            {% endfor %}
+        
+    </div>
+
+    <input type="submit" value="Book">
+    </form>
+
+
+</div>
+{% else %}
+<h3>Please cancel booking to book this hotel</h3>
+{% endif %}
+
+<script>
+    let put_form_field;
+    function f(obj){
+
+        put_form_field = document.getElementById(obj.name);
+        put_form_field.innerHTML = ' ';
+        let form_id = put_form_field.id + ' ';
+
+        let val = Number(obj.value);
+        
+        for(let i = 0; i < val; i++){
+
+            let create_form_field_child = document.createElement('input');
+            create_form_field_child.type = 'number';
+            create_form_field_child.name = form_id + (i + 1) + ' ' + 'child';
+            create_form_field_child.id = form_id + (i + 1) + ' ' + 'child';
+            create_form_field_child.required = true;
+            create_form_field_child.defaultValue = 0;
+
+            let create_form_field_adult = document.createElement('input');
+            create_form_field_adult.type = 'number';
+            create_form_field_adult.name = form_id + (i + 1) + ' ' + 'adult';
+            create_form_field_adult.id = form_id + (i + 1) + ' ' + 'adult';
+            create_form_field_adult.required = true;
+            create_form_field_adult.defaultValue = 1;
+
+            
+
+            let label_tag_child = document.createElement('label');
+            label_tag_child.for = create_form_field_child.id;
+            let child_text = document.createTextNode('Child guests: ');
+
+            label_tag_child.appendChild(child_text);
+            console.log(label_tag_child)
+            
+            let label_tag_adult = document.createElement('label');
+            label_tag_adult.for = create_form_field_adult.id;
+            let adult_text = document.createTextNode('Adult guests: ')
+
+            label_tag_adult.appendChild(adult_text);
+
+            let div_tag_1 = document.createElement('div');
+            div_tag_1.appendChild(label_tag_adult);
+            div_tag_1.appendChild(create_form_field_adult);
+
+            let div_tag_2 = document.createElement('div');
+            div_tag_2.appendChild(label_tag_child);
+            div_tag_2.appendChild(create_form_field_child);
+
+            let main_div = document.createElement('div');
+
+            let h_tag = document.createElement('h3');
+            let h_text = document.createTextNode(form_id + (i + 1) );
+            h_tag.appendChild(h_text);
+
+            main_div.appendChild(h_tag);
+            main_div.appendChild(div_tag_1);
+            main_div.appendChild(div_tag_2);
+
+            
+            put_form_field.appendChild(main_div);
+        }
+        
+      
+    }
+</script>
+
+
+
+
+{% endblock %}

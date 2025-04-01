@@ -1,0 +1,42 @@
+{% extends 'app/parent.html'%}
+
+
+{% block title%} Login {% endblock %}
+
+{% block body %}
+
+<div class="container d-flex justify-content-center">
+<form method="POST">
+{% csrf_token %}
+<h1 class="mt-4">Login</h1>
+
+{% if messages%}
+<ul>
+{% for message in messages%}
+<li>{{message}}</li>
+{% endfor %}
+</ul>
+{% endif %}
+<p class="mt-4">
+<label for="username">Username:</label>
+<input type="text" name="username" id="username">
+</p>
+
+<p>
+<label for="password">Password:</label>
+<input type="password" name="password" id="password">
+</p>
+
+<input type="submit">
+
+<!-- <div  class="mt-4">
+    <a href="/password-reset" >Forgot password ?</a>
+    <div > -->
+        <div  class="mt-4">
+    <a href="/home/">Home page</a></div>
+</div>
+    </div>
+</form>
+
+</div>
+{% endblock %}

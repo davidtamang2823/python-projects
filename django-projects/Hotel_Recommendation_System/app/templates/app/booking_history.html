@@ -1,0 +1,73 @@
+{% extends 'app/parent.html'%}
+
+
+{% block title %}
+User booking history
+{% endblock %}
+
+{% block body %}
+
+{% include 'app/navbar.html'%}
+
+<div class="container mt-4">
+<h1>Booking history</h1>
+
+
+<table class="table table-bordered mt-4">
+    <thead>
+        <tr>
+          <th scope="col">Hotel name</th>
+          <th scope="col">Hotel destination</th>
+          <th scope="col">Booking date</th>
+          <th scope="col">Check in date time</th>
+          <th scope="col">Check out date time</th>
+          <th scope="col">Adult guests</th>
+          <th scope="col">Child guests</th>
+          <th scope="col">Canceled</th>
+          <th scope="col">Booking expired</th>
+          <th scope="col">Checked in</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        {% for b in bh%}
+
+            <tr>
+                <td>{{b.room.hotel.hotel_name}}</td>
+                <td>{{b.room.hotel.destination.destination_name}}</td>
+                <td>{{b.booking_date}}</td>
+                <td>{{b.check_in_date_time}}</td>
+                <td>{{b.check_out_date_time}}</td>
+                <td>{{b.number_of_adult_guest}}</td>
+                <td>{{b.number_of_child_guest}}</td>
+                {% if b.isCanceled%}
+                <td><i class="fa fa-check text-success"></i></td>
+                {% else %}
+                <td><i class="fa fa-close text-danger"></i></td>
+                {% endif %}
+
+                {% if b.isBookingExpired%}
+                <td><i class="fa fa-check text-success"></i></td>
+                {% else %}
+                <td><i class="fa fa-close text-danger"></i></td>
+                {% endif %}
+
+                {% if b.isChecked_in%}
+                <td><i class="fa fa-check text-success"></i></td>
+                {% else %}
+                <td><i class="fa fa-close text-danger"></i></td>
+                {% endif %}
+            </tr>
+
+
+
+        {% endfor %}
+
+
+      </tbody>
+</table>
+
+
+</div>
+
+{% endblock %}

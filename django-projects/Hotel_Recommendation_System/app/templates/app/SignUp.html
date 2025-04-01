@@ -1,0 +1,30 @@
+{% extends 'app/parent.html'%}
+
+
+
+{% block title %}
+Sign-up
+{% endblock %}
+
+
+{% block body %}
+
+<div class="container d-flex justify-content-center">
+
+<form action="" method="POST" enctype="multipart/form-data">
+{% csrf_token %}
+<h1 class="mt-4">Sign-up</h1>
+
+{{fields.as_p}}
+
+
+<input type="submit" value="Sign-up">
+<div class="mt-4">
+    <a href="/login/">Already signed-up ?</a>
+    <a href="/home/" class="ml-3">Home page</a>
+</div>
+</form>
+</div>
+
+
+{% endblock %}

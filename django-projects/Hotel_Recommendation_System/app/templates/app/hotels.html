@@ -1,0 +1,110 @@
+{% extends 'app/parent.html'%}
+
+
+{% block title%} View hotels{% endblock %}
+
+{% block body %}
+
+{% include 'app/navbar.html'%}
+
+
+<div class="container mt-5">
+    <h1>Destination: {{destination_name}}</h1>
+</div>
+
+<div class="container mt-5">
+
+<div class="row text-center"> 
+
+    {% for x in hotels%}
+    <div class="col-lg-4">
+    <div class="card mt-4" style="width: 18rem; margin-left: 28px;">
+        <img class="card-img-top" src="{{x.hotel_pic.url}}" alt="{{x.hotel_name}} pic" width="300px" height="300px">
+        <div class="card-body">
+          <h5 class="card-title"><a href="">{{x.hotel_name}}</a></h5>
+          <p><b>Location: </b>{{x.destination}}, {{x.location.address_name}}</p>
+          <p><b>Hotel type: </b>{{x.hotel_type.hotel_type_names}}</p>
+          <p><b>Rating: {{x.hotel_rating}}</b></p>
+          {% if user.is_authenticated%}
+          <a href="/{{destination_name}}/{{x.hotel_name}}/{{x.id}}" class="btn btn-primary">Show prices</a>
+          {% else %}
+          <a href="/login/" class="btn btn-primary">Login</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    {%endfor%}
+
+</div>
+
+<div class=" mt-5 mb-5 d-flex justify-content-center">
+<nav aria-label="Page navigation example" >
+
+  <ul class="pagination">
+    <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+    {% for p in pages%}
+    {% if p == pageNo%}
+    <li class="page-item active">
+      <a class="page-link" href="/destination/{{destination_name}}/hotels/page/{{p}}">{{p}}<span class="sr-only">(current)</span></a>
+    </li>
+    {%else%}
+    <li class="page-item"><a class="page-link" href="/destination/{{destination_name}}/hotels/page/{{p}}">{{p}}</a></li>
+    {% endif %}
+    {% endfor %}
+    <li class="page-item"><a class="page-link" href="#">Next</a></li>
+  </ul>
+</nav>
+</div>
+
+<hr />
+{% if recommendation_lists %}
+<h1 class="mt-5">Recommended hotels for you</h1>
+<div class="row text-center mt-5"> 
+{% for x in recommendation_lists%}
+<div class="col-lg-4">
+<div class="card mt-4" style="width: 18rem;">
+    <img class="card-img-top" src="{{x.hotel_pic.url}}" alt="{{x.hotel_name}} pic" width="300px" height="300px">
+    <div class="card-body">
+      <h5 class="card-title"><a href="">{{x.hotel_name}}</a></h5>
+      <p><b>Location: </b>{{x.destination}}, {{x.location.address_name}}</p>
+      <p><b>Hotel type: </b>{{x.hotel_type.hotel_type_names}}</p>
+      <p><b>Rating: </b>{{x.hotel_rating}}</p>
+      {% if user.is_authenticated%}
+      <a href="/{{destination_name}}/{{x.hotel_name}}/{{x.id}}" class="btn btn-primary">Show prices</a>
+      {% else %}
+      <a href="/login/" class="btn btn-primary">Login</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{%endfor%}
+{% elif best_hotels%}
+<h1 class="mt-5">Best hotels for you</h1>
+<div class="row text-center mt-5"> 
+{% for x in best_hotels%}
+<div class="col-lg-4">
+<div class="card mt-4" style="width: 18rem;">
+    <img class="card-img-top" src="{{x.hotel_pic.url}}" alt="{{x.hotel_name}} pic" width="300px" height="300px">
+    <div class="card-body">
+      <h5 class="card-title"><a href="">{{x.hotel_name}}</a></h5>
+      <p><b>Location: </b>{{x.destination}}, {{x.location.address_name}}</p>
+      <p><b>Hotel type: </b>{{x.hotel_type.hotel_type_names}}</p>
+      <p><b>Rating: </b>{{x.hotel_rating}}</p>
+      {% if user.is_authenticated%}
+      <a href="/{{destination_name}}/{{x.hotel_name}}/{{x.id}}" class="btn btn-primary">Show prices</a>
+      {% else %}
+      <a href="/login/" class="btn btn-primary">Login</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{%endfor%}
+</div>
+{% endif %}
+
+
+
+
+</div>
+{% endblock %}

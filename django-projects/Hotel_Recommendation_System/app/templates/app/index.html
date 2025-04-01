@@ -1,0 +1,74 @@
+{% extends 'app/parent.html'%}
+
+
+{% block title %} Home {% endblock %}
+
+{% block body %}
+
+{% include 'app/navbar.html'%}
+
+
+
+
+<div class="container">
+
+    <div class="row mt-5">
+        <div class="col-6">
+        
+        </div>
+    <div class="col-6">
+    <form class="form-inline" method="POST">
+        {% csrf_token %}
+       <div style="width: 417px;">
+        <input type="text" name="location-search" style="margin-left: 220px;" class="form-control" placeholder="Search place">
+        </div>
+        <input type="submit" class="btn btn-outline-success ml-3" value="Search">
+
+        <!-- <div class="form-group mx-sm-3 mb-2">
+            <input type="text" class="form-control"  placeholder="Search place">
+          </div> -->
+          <!-- <button type="submit" class="btn btn-outline-success mb-2">Search</button> -->
+    </form>
+</div>
+</div>
+<div class="row text-center"> 
+
+
+{% if src %}
+{% for x in src %}
+
+<div class="col-lg-4">
+<div class="card my-5" style="width: 18rem; margin-left: 28px;">
+
+    <img class="card-img-top " src="{{x.destination_pic.url}}" alt="{{x.location_name}} some where pic" width="296px" height="202px">
+    <div class="card-body">
+        <h5 class="card-title">{{x.destination_name}}</h5>
+        <p><b>Zip code: </b>{{x.zip_code}}</p>
+        <a href="/destination/{{x.destination_name}}/hotels" class="btn btn-primary">Find hotels</a>
+    </div>
+</div>
+</div>
+{% endfor %}
+{% else %}
+
+{% for x in destination %}
+
+<div class="col-lg-4">
+<div class="card my-5" style="width: 18rem; margin-left: 28px;">
+
+    <img class="card-img-top " src="{{x.destination_pic.url}}" alt="{{x.location_name}} some where pic" width="296px" height="202px">
+    <div class="card-body">
+        <h5 class="card-title">{{x.destination_name}}</h5>
+        <p><b>Zip code: </b>{{x.zip_code}}</p>
+        <a href="/destination/{{x.destination_name}}/hotels" class="btn btn-primary">Find hotels</a>
+    </div>
+</div>
+</div>
+{% endfor %}
+
+{% endif %}
+</div>
+</div>
+
+
+{% endblock %}

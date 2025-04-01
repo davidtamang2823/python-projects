@@ -1,0 +1,71 @@
+<!-- <nav>
+
+    <ul>
+        <li><a href="/home/">Home</a></li>
+       {% if user.is_authenticated %} 
+        <li><a href="/logout/">Logout</a></li>
+        <li> <a href="/profile/">Profile</a></li>
+        {% else %}
+        <li><a href="/login/">Login</a></li>
+        <li><a href="/signup/">Signup</a></li>
+       {% endif %}
+    </ul>
+
+</nav> -->
+<nav class="mb-1 navbar navbar-expand-lg navbar-light bg-dark ">
+    <a class="navbar-brand text-light" >Hotel Recommendation System</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent-555"
+      aria-controls="navbarSupportedContent-555" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent-555">
+      {% if user.is_authenticated %}
+      <!-- <ul class="navbar-nav mr-auto">
+       
+        
+      </ul> -->
+
+      <ul class="navbar-nav ml-auto  nav-flex-icons">
+        <li class="nav-item active mr-2 mt-2 ">
+          <a class="nav-link text-light" href="/home/">Home
+            <span class="sr-only">(current)</span>
+          </a>
+        </li>
+        <li class="nav-item  mr-2 mt-2 ">
+          <a class="nav-link text-light" href="/user/booking_history">Booking history
+          </a>
+        </li>
+       
+        <li class="nav-item  mr-2 mt-2 ">
+          <a class="nav-link text-light" href="/profile/">Profile</a>
+        </li>
+                 
+        <li class="nav-item  mr-2 mt-2 ">
+          <a class="nav-link text-light"href="/logout/">Logout</a>
+        </li>
+           
+      
+      </ul>
+
+
+        {% else %}
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item active">
+            <a class="nav-link text-light mr-4" href="/home/">Home
+              <span class="sr-only">(current)</span>
+            </a>
+          </li>
+        <li class="nav-item mr-4">
+          <a class="nav-link text-light" href="/login/">Login</a>
+        </li>
+        <li class="nav-item mr-4">
+          <a class="nav-link text-light" href="/admin/">Admin Login</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link btn btn-outline-success text-success" href="/signup/">Signup</a>
+        </li>
+      </ul>
+
+      {% endif %}
+    </div>
+  </nav>

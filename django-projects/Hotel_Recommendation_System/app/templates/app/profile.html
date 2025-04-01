@@ -1,0 +1,47 @@
+{% extends 'app/parent.html'%}
+
+{% block title %} Profile {% endblock %}
+
+{% block body %}
+
+{% include 'app/navbar.html' %}
+<div class="container d-flex justify-content-center">
+<form method="POST" enctype="multipart/form-data">
+{%csrf_token%}
+<div class="form-group">
+    <img src="{{ud.user_profile_pic.url}}" height="200px" width="200px"   alt="">
+    <input type="file" name="edit_pic"  accept="image/png, image/jpeg, image/jpg">
+</div>
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="text-{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+<div>
+    <label for=""> <b> First Name:</b> </label>
+    <input type="text" name="first_name" value="{{user.first_name}}" required>
+</div>
+<div>
+    <label for=""><b>Last Name: </b>  </label>
+    <input type="text" name="last_name" value="{{user.last_name}}" required>
+</div>
+ <div>
+    <label for=""><b> Username: </b></label>
+    <p>{{user.username}}</p>
+ </div>
+
+ <div>
+     <label for=""><b> Email: </b></label>
+     <p>{{user.email}}</p>
+ </div>
+<div>
+    <label for=""><b> Date of birth: </b></label>
+    <p>{{ud.dob}}</p>
+</div>
+   
+<input type="submit" value="Edit" class="btn btn-warning">
+</form>
+</div>
+{% endblock %}

@@ -9,8 +9,6 @@ class Event(BaseModel):
     )
 
     event_type: str
-    payload: dict
-    user_id: int
     source: str
-    event_id: str = Field(default_factory=lambda: uuid4().hex)
+    event_id: str = Field(default_factory=lambda: uuid4())
     timestamp: datetime = Field(default=datetime.now())

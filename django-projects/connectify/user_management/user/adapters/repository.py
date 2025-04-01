@@ -1,7 +1,12 @@
 import abc
-from typing import Optional
-from user_management.user.domain import model as user_domain_model
+from typing import Optional, Dict, List
+
+from django.core.paginator import Paginator
 from django.contrib.auth import get_user_model
+from django.db.models import Q
+
+from user_management.user.domain import model as user_domain_model
+
 
 UserOrm = get_user_model()
 
@@ -9,19 +14,27 @@ class AbstractUserRepository(abc.ABC):
 
 
     @abc.abstractmethod
-    def get_by_id(self, user_id: int) -> Optional[user_domain_model.User]:
+    def get_by_id(self, user_id: int) -> Optional[Dict]:
         raise NotImplementedError
     
     @abc.abstractmethod
-    def get_by_email(self, email: str) -> Optional[user_domain_model.User]:
+    def get_by_email(self, email: str) -> Optional[Dict]:
+        raise NotImplementedError
+    
+    @abc.abstractmethod
+    def list_users(user_filters: Dict = {}) -> List[Dict]:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def create_user(self, user: user_domain_model.User) -> user_domain_model.User:
+    def get_by_username(self, username: str) -> Optional[Dict]:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def create_user(self, user: user_domain_model.User) -> Dict:
         raise NotImplementedError
     
     @abc.abstractmethod
-    def update_full_name(self, user_id: int, first_name: str, last_name: str) -> Optional[user_domain_model.User]:
+    def update_full_name(self, user_id: int, first_name: str, last_name: str) -> Optional[Dict]:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -31,25 +44,25 @@ class AbstractUserRepository(abc.ABC):
 
 class UserRepository(AbstractUserRepository):
 
-    def create_user_to_domain_model(self, id, first_name, last_name, email, username):
+    def create_user_to_dict(self, id, first_name, last_name, email, username):
 
-        user = user_domain_model.User(
-            id = id,
-            first_name = first_name,
-            last_name = last_name,
-            email = email,
-            username = username,
-        )
+        user_dict = {
+            "id": id,
+            "first_name": first_name,
+            "last_name": last_name,
+            "email": email,
+            "username": username        
+        }
 
-        return user
+        return user_dict
 
-    def get_by_id(self, user_id: int) -> Optional[user_domain_model.User]:
+    def get_by_id(self, user_id: int) -> Optional[Dict]:
         try:
             user_object = UserOrm.objects.get(id=user_id)
         except UserOrm.DoesNotExist:
             return
 
-        user = self.create_user_to_domain_model(
+        return self.create_user_to_dict(
             id = user_object.id,
             first_name= user_object.first_name,
             last_name= user_object.last_name,
@@ -57,15 +70,27 @@ class UserRepository(AbstractUserRepository):
             username= user_object.username
         )
 
-        return user
-
-    def get_by_email(self, email: str) -> Optional[user_domain_model.User]:
+    def get_by_email(self, email: str) -> Optional[Dict]:
         try:
             user_object = UserOrm.objects.get(email=email)
         except UserOrm.DoesNotExist:
             return
 
-        user = self.create_user_to_domain_model(
+        return self.create_user_to_dict(
+            id = user_object.id,
+            first_name= user_object.first_name,
+            last_name= user_object.last_name,
+            email= user_object.email,
+            username= user_object.username
+        )
+    
+    def get_by_username(self, username: str) -> Optional[Dict]:
+        try:
+            user_object = UserOrm.objects.get(username=username)
+        except UserOrm.DoesNotExist:
+            return
+
+        return self.create_user_to_dict(
             id = user_object.id,
             first_name= user_object.first_name,
             last_name= user_object.last_name,
@@ -73,9 +98,36 @@ class UserRepository(AbstractUserRepository):
             username= user_object.username
         )
 
-        return user
+    def list_users(self, user_filters: Dict = None) -> List[Dict]:
+        _q = Q()
+        search_key = user_filters.get("search_key")
+        if search_key:
+            _q &= (
+                Q(first_name__icontains=search_key) | 
+                Q(last_name__icontains=search_key) | 
+                Q(username__icontains=search_key)
+            )
 
-    def create_user(self, user: user_domain_model.User) -> user_domain_model.User:
+        query_set = (
+            UserOrm.objects.filter(
+                _q
+            )
+            .values(
+                "id",
+                "username",
+                "first_name",
+                "last_name",
+            )
+            .order_by(
+                "first_name", 
+                "last_name", 
+                "username"
+            )
+        )
+
+        return user_objects
+
+    def create_user(self, user: user_domain_model.User) -> Dict:
         user_object = UserOrm.objects.create(
             first_name = user.first_name,
             last_name = user.last_name,
@@ -87,7 +139,7 @@ class UserRepository(AbstractUserRepository):
             is_superuser = user.is_superuser
         )
 
-        user = self.create_user_to_domain_model(
+        return self.create_user_to_dict(
             id = user_object.id,
             first_name= user_object.first_name,
             last_name= user_object.last_name,
@@ -95,10 +147,7 @@ class UserRepository(AbstractUserRepository):
             username= user_object.username
         )
 
-        return user
-
-
-    def update_full_name(self, user_id: int, first_name: str, last_name: str) -> Optional[user_domain_model.User]:
+    def update_full_name(self, user_id: int, first_name: str, last_name: str) -> Optional[Dict]:
         try:
             user_object = UserOrm.objects.get(id=user_id)
         except UserOrm.DoesNotExist:
@@ -108,15 +157,13 @@ class UserRepository(AbstractUserRepository):
         user_object.last_name = last_name
         user_object.save()
 
-        user = self.create_user_to_domain_model(
+        return self.create_user_to_dict(
             id = user_object.id,
             first_name= user_object.first_name,
             last_name= user_object.last_name,
             email= user_object.email,
-            username= user_object.username        
+            username= user_object.username   
         )
-
-        return user
 
     def delete_user(self, user_id: int) -> bool:
         try:

@@ -5,7 +5,7 @@ from rest_framework.viewsets import ViewSet
 from rest_framework.decorator import action
 from rest_framework.response import Response
 
-
+from common.paginator.paginator import PaginatorCommon
 from events import message_bus
 from user_management.user.service_layer.services import UserService
 from user_management.user.service_layer.validator import UserValidator
@@ -20,21 +20,23 @@ class UserViewSet(ViewSet):
         repository = UserRepository()
         validator = UserValidator(repository=repository)
         factory = UserFactory()
+        paginator = PaginatorCommon()
 
         return self.service_class(
             repository=repository, 
             validator=validator, 
             factory=factory, 
-            message_bus=message_bus
+            message_bus=message_bus,
+            paginator=paginator
         )
 
     def list(self, request, *args, **kwargs):
         user_filters = {
             'page': request.query_params.get('page', 1),
-            'per_page': request.query_params.get('page_size', 10),
+            'page_size': request.query_params.get('page_size', 10),
             'search_key': request.query_params.get('search_key'),
         }
-        data = self.get_service().list_users(
+        paginated_details = self.get_service().list_users(
             user_filters
         )
 

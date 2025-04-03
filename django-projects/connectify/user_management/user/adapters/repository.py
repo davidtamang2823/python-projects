@@ -1,7 +1,6 @@
 import abc
 from typing import Optional, Dict, List
 
-from django.core.paginator import Paginator
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 
@@ -108,7 +107,7 @@ class UserRepository(AbstractUserRepository):
                 Q(username__icontains=search_key)
             )
 
-        query_set = (
+        queryset = (
             UserOrm.objects.filter(
                 _q
             )
@@ -125,7 +124,7 @@ class UserRepository(AbstractUserRepository):
             )
         )
 
-        return user_objects
+        return queryset
 
     def create_user(self, user: user_domain_model.User) -> Dict:
         user_object = UserOrm.objects.create(

@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import List, Dict
+from typing import Dict
 
 from django.db.transaction import atomic
 
+from common.paginator.paginator import PaginatorCommon
 from events import MessageBus
 from user_management.user.domain.factory import AbstractUserFactory
 from user_management.user.adapters.repository import AbstractUserRepository
@@ -11,11 +12,11 @@ class AbstractUserService(ABC):
 
 
     @abstractmethod
-    def list_users(self, user_filters: Dict):
+    def list_users(self, user_filters: Dict) -> Dict:
         raise NotImplementedError
     
     @abstractmethod
-    def get_user(self, user_id: int):
+    def get_user(self, user_id: int) -> Dict:
         raise NotImplementedError
 
     @abstractmethod
@@ -38,14 +39,14 @@ class AbstractUserService(ABC):
         user_id: int,
         first_name: str,
         last_name: str
-    ):
+    ) -> Dict:
         raise NotImplementedError
 
     @abstractmethod
     def delete_user(
         self,
         user_id: int
-    ):
+    ) -> None:
         raise NotImplementedError
 
 
@@ -59,14 +60,20 @@ class UserService(AbstractUserService):
         factory: AbstractUserFactory, 
         message_bus: MessageBus,
         validator: UserValidator,
+        paginator: PaginatorCommon
     ):
         self.repository = repository
         self.factory = factory
         self.message_bus = message_bus
         self.validator = validator
+        self.paginator = paginator
 
-    def list_users(self, user_filters: dict) -> List[Dict]:
-        return self.repository.list_users(user_filters=user_filters)
+    def list_users(self, user_filters: dict) -> Dict:
+        queryset = self.repository.list_users(user_filters=user_filters)
+        paginated_details = self.paginator.get_paginator_response(
+            data=queryset, page_size=user_filters.get("page_size", 10), page=user_filters.get("page", 1)
+        )
+        return paginated_details
 
     def get_user(self, user_id: int) -> Dict:
         return self.repository.get_by_id(user_id=user_id)

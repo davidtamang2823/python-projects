@@ -1,19 +1,22 @@
 from typing import List, Dict
-from rest_framework.pagination import BasePagination
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
 DEFAULT_PAGE_NUMBER = 1
-DEFAULT_PER_PAGE = 10
+DEFAULT_PAGE_SIZE = 10
 
-class CustomPagination(BasePagination):
+class CustomPagination(PageNumberPagination):
+
+    page_size = DEFAULT_PAGE_SIZE
+    page_size_query_param = 'page_size'
 
     def get_paginated_response(self, data: List[Dict], additional_info: Dict = None) -> Response:
 
         response_data = {
-            'previous_page': '',
-            'next_page':'',
-            'page_size': '',
-            'total_item':'',
+            'previous_page': self.get_previous_link(),
+            'next_page':self.get_next_link(),
+            'current_page': self.page.number,
+            'total_items': self.page.paginator.count,
             'data':data
         }
 

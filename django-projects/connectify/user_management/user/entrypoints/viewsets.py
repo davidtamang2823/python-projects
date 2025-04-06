@@ -2,43 +2,45 @@ from http import HTTPMethod
 
 from rest_framework import status
 from rest_framework.viewsets import ViewSet
-from rest_framework.decorator import action
+from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from common.paginator.paginator import PaginatorCommon
+from common.custom_pagination import CustomPagination
 from events import message_bus
 from user_management.user.service_layer.services import UserService
 from user_management.user.service_layer.validator import UserValidator
+from user_management.user.domain import exceptions as domain_exceptions
+from user_management.user.service_layer import exceptions as services_exceptions
 from user_management.user.adapters.repository import UserRepository
 from user_management.user.domain.factory import UserFactory
 
 class UserViewSet(ViewSet):
 
     service_class = UserService
+    paginator_class = CustomPagination
 
     def get_service(self) -> UserService:
         repository = UserRepository()
         validator = UserValidator(repository=repository)
         factory = UserFactory()
-        paginator = PaginatorCommon()
 
         return self.service_class(
             repository=repository, 
             validator=validator, 
             factory=factory, 
             message_bus=message_bus,
-            paginator=paginator
         )
 
     def list(self, request, *args, **kwargs):
         user_filters = {
-            'page': request.query_params.get('page', 1),
-            'page_size': request.query_params.get('page_size', 10),
             'search_key': request.query_params.get('search_key'),
         }
-        paginated_details = self.get_service().list_users(
+        queryset = self.get_service().list_users(
             user_filters
         )
+        paginator = self.paginator_class()
+        paginated_queryset = paginator.paginate_queryset(queryset, request)
+        return paginator.get_paginated_response(data = paginated_queryset)
 
 
     def retrive(self, request, *args, **kwargs):
@@ -52,29 +54,48 @@ class UserViewSet(ViewSet):
 
     @action(detail=False, methods=[HTTPMethod.POST])
     def register(self, request, *args, **kwargs):
-        data = self.get_service().register_user(
-            email=request.data.get("email"),
-            password=request.data.get("password"),
-            username=request.data.get("username"),
-            first_name=request.data.get("first_name"),
-            last_name=request.data.get("last_name"),
-        )
-        return Response(
-            data = data,
-            status = status.HTTP_201_CREATED
-        )
+        try:
+            data = self.get_service().register_user(
+                email=request.data.get("email"),
+                password=request.data.get("password"),
+                username=request.data.get("username"),
+                first_name=request.data.get("first_name"),
+                last_name=request.data.get("last_name"),
+            )
+            return Response(
+                data = data,
+                status = status.HTTP_201_CREATED
+            )
+        except (
+            domain_exceptions.InvalidEmailLength, 
+            domain_exceptions.InvalidPasswordLength,
+            domain_exceptions.InvalidUserFullNameLength,
+            domain_exceptions.InvalidUserNameLength,
+            services_exceptions.EmailAlreadyExists,
+            services_exceptions.UserNameAlreadyExists
+        ) as e:
+            return Response(
+                data = {'error':str(e)},
+                status = status.HTTP_400_BAD_REQUEST
+            )
 
     @action(detail=True, methods=[HTTPMethod.PATCH])
     def update_full_name(self, request, *args, **kwargs):
-        data = self.get_service().update_full_name(
-            user_id=kwargs.get("pk"),
-            first_name=request.data.get("first_name"),
-            last_name=request.data.get("last_name")
-        )
-        return Response(
-            data = data,
-            status = status.HTTP_200_OK
-        )
+        try:
+            data = self.get_service().update_full_name(
+                user_id=kwargs.get("pk"),
+                first_name=request.data.get("first_name"),
+                last_name=request.data.get("last_name")
+            )
+            return Response(
+                data = data,
+                status = status.HTTP_200_OK
+            )
+        except (domain_exceptions.InvalidUserFullNameLength) as e:
+            return Response(
+                data = {'error':str(e)},
+                status = status.HTTP_400_BAD_REQUEST
+            )
 
     def destroy(self, request, *args, **kwargs):
         self.get_service().delete_user(

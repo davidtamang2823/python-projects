@@ -1,1 +1,1 @@
-from user_management.user.infrastructure_layer.orm import *
+from user_management.user.adapters.orm import *

@@ -1,9 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import Dict
+from typing import Dict, List
 
 from django.db.transaction import atomic
 
-from common.paginator.paginator import PaginatorCommon
 from events import MessageBus
 from user_management.user.domain.factory import AbstractUserFactory
 from user_management.user.adapters.repository import AbstractUserRepository
@@ -60,20 +59,15 @@ class UserService(AbstractUserService):
         factory: AbstractUserFactory, 
         message_bus: MessageBus,
         validator: UserValidator,
-        paginator: PaginatorCommon
     ):
         self.repository = repository
         self.factory = factory
         self.message_bus = message_bus
         self.validator = validator
-        self.paginator = paginator
 
-    def list_users(self, user_filters: dict) -> Dict:
+    def list_users(self, user_filters: Dict) -> List[Dict]:
         queryset = self.repository.list_users(user_filters=user_filters)
-        paginated_details = self.paginator.get_paginator_response(
-            data=queryset, page_size=user_filters.get("page_size", 10), page=user_filters.get("page", 1)
-        )
-        return paginated_details
+        return queryset
 
     def get_user(self, user_id: int) -> Dict:
         return self.repository.get_by_id(user_id=user_id)

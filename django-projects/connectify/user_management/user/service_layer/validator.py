@@ -13,3 +13,11 @@ class UserValidator:
     def validate_username_uniquness(self, username):
         if self.repository.get_by_username(username=username) is not None:
             raise user_service_layer_exceptions.UserNameAlreadyExists
+
+    def validate_user_not_none(self, user_object):
+        if user_object is None:
+            raise user_service_layer_exceptions.UserNotFound
+
+    def validate_user_exists_by_id(self, user_id):
+        if self.repository.get_by_id(user_id=user_id) is None:
+            raise user_service_layer_exceptions.UserNotFound

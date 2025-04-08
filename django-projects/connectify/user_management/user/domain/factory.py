@@ -1,4 +1,4 @@
-import random
+import secrets
 from abc import ABC, abstractmethod
 from user_management.user.domain import model as user_domain_model
 from user_management.user.domain import events as user_events
@@ -55,7 +55,8 @@ class UserFactory(AbstractUserFactory):
                     event_type=user_constants.USER_REGISTRATION,
                     source=user_constants.EVENT_SOURCE,
                     send_to=email,
-                    verification_code=random.randint(100000, 999999),
+                    send_to_username=username,
+                    verification_token=secrets.token_urlsafe(64),
                 )
             ]
         )

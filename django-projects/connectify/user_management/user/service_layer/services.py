@@ -7,6 +7,7 @@ from events import MessageBus
 from user_management.user.domain.factory import AbstractUserFactory
 from user_management.user.adapters.repository import AbstractUserRepository
 from user_management.user.service_layer.validator import UserValidator
+from user_management.user.service_layer import exceptions as user_service_layer_exceptions
 class AbstractUserService(ABC):
 
 
@@ -70,7 +71,9 @@ class UserService(AbstractUserService):
         return queryset
 
     def get_user(self, user_id: int) -> Dict:
-        return self.repository.get_by_id(user_id=user_id)
+        user_details = self.repository.get_by_id(user_id=user_id)
+        self.validator.validate_user_not_none(user_object=user_details)
+        return user_details
 
     @atomic
     def register_user(
@@ -111,6 +114,8 @@ class UserService(AbstractUserService):
         last_name: str
     ) -> Dict:
         
+        self.validator.validate_user_exists_by_id(user_id=user_id)
+
         user = self.factory.update_full_name(
             user_id=user_id,
             first_name=first_name,
@@ -125,4 +130,5 @@ class UserService(AbstractUserService):
 
     @atomic
     def delete_user(self, user_id: int) -> None:
+        self.validator.validate_user_exists_by_id(user_id=user_id)
         self.repository.delete_user(user_id=user_id)

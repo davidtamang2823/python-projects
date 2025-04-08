@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-from typing import NewType, List
+from typing import NewType, List, Optional
 
 from events import Event
 from user_management.user.domain import exceptions as user_domain_exceptions
@@ -14,15 +14,15 @@ class Base(BaseModel):
 class User(Base):
 
 
-    id: UserId | None
-    email: str | None
-    password: str | None
-    username: str | None
-    first_name: str | None
-    last_name: str | None
-    is_active: bool = False
-    is_superuser: bool = False
-    is_staff: bool = False
+    id: Optional[UserId] = None
+    email: Optional[str] = None
+    password: Optional[str] = None
+    username: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    is_active: Optional[bool] = False
+    is_superuser: Optional[bool] = False
+    is_staff: Optional[bool] = False
     events: List[Event] = Field(default_factory=list)
 
     @field_validator('first_name', 'last_name', mode='after')

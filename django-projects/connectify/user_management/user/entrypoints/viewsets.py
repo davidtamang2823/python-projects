@@ -31,7 +31,7 @@ class UserViewSet(ViewSet):
             message_bus=message_bus,
         )
 
-    def list(self, request, *args, **kwargs):
+    def list(self, request):
         user_filters = {
             'search_key': request.query_params.get('search_key'),
         }
@@ -39,21 +39,27 @@ class UserViewSet(ViewSet):
             user_filters
         )
         paginator = self.paginator_class()
-        paginated_queryset = paginator.paginate_queryset(queryset, request)
+        paginated_queryset = paginator.paginate_queryset(queryset, self.request)
         return paginator.get_paginated_response(data = paginated_queryset)
 
 
-    def retrive(self, request, *args, **kwargs):
-        data = self.get_service().get_user(
-            user_id=kwargs.get("pk")
-        )
-        return Response(
-            data = data,
-            status = status.HTTP_200_OK
-        )
+    def retrieve(self, request, pk):
+        try:
+            data = self.get_service().get_user(
+                user_id=pk
+            )
+            return Response(
+                data = data,
+                status = status.HTTP_200_OK
+            )
+        except services_exceptions.UserNotFound as e:
+            return Response(
+                data = {'error': str(e)},
+                status = status.HTTP_404_NOT_FOUND
+            )
 
     @action(detail=False, methods=[HTTPMethod.POST])
-    def register(self, request, *args, **kwargs):
+    def register(self, request):
         try:
             data = self.get_service().register_user(
                 email=request.data.get("email"),
@@ -80,10 +86,10 @@ class UserViewSet(ViewSet):
             )
 
     @action(detail=True, methods=[HTTPMethod.PATCH])
-    def update_full_name(self, request, *args, **kwargs):
+    def update_full_name(self, request, pk):
         try:
             data = self.get_service().update_full_name(
-                user_id=kwargs.get("pk"),
+                user_id=pk,
                 first_name=request.data.get("first_name"),
                 last_name=request.data.get("last_name")
             )
@@ -96,12 +102,23 @@ class UserViewSet(ViewSet):
                 data = {'error':str(e)},
                 status = status.HTTP_400_BAD_REQUEST
             )
+        except (services_exceptions.UserNotFound) as e:
+            return Response(
+                data = {'error': str(e)},
+                status = status.HTTP_404_NOT_FOUND
+            )
 
-    def destroy(self, request, *args, **kwargs):
-        self.get_service().delete_user(
-            user_id=kwargs.get("pk")
-        )
-        return Response(
-            data={'message': 'User Has Been Successfully Deleted.'},
-            status = status.HTTP_200_OK
-        )
+    def destroy(self, request, pk):
+        try:
+            self.get_service().delete_user(
+                user_id=pk
+            )
+            return Response(
+                data={'message': 'User Has Been Successfully Deleted.'},
+                status = status.HTTP_200_OK
+            )
+        except (services_exceptions.UserNotFound) as e:
+            return Response(
+                data = {'error': str(e)},
+                status = status.HTTP_404_NOT_FOUND
+            )

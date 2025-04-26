@@ -5,6 +5,10 @@ class UserVerification(models.Model):
 
 
     verified_at = models.DateTimeField(null=True)
+    is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    verification_token = models.CharField(max_length=64)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='verification')
+    token = models.CharField(max_length=64, unique=True)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='verification')
+
+    class Meta:
+        default_permissions = ()

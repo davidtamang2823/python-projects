@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import Q
 
 from user_management.user.domain import model as user_domain_model
-
+from user_management.models import UserVerification
 
 UserOrm = get_user_model()
 
@@ -15,11 +15,11 @@ class AbstractUserRepository(abc.ABC):
     @abc.abstractmethod
     def get_by_id(self, user_id: int) -> Optional[Dict]:
         raise NotImplementedError
-    
+
     @abc.abstractmethod
     def get_by_email(self, email: str) -> Optional[Dict]:
         raise NotImplementedError
-    
+
     @abc.abstractmethod
     def list_users(user_filters: Dict = {}) -> List[Dict]:
         raise NotImplementedError
@@ -29,9 +29,9 @@ class AbstractUserRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def create_user(self, user: user_domain_model.User) -> Dict:
+    def create_user(self, user: user_domain_model.User, token: str) -> Dict:
         raise NotImplementedError
-    
+
     @abc.abstractmethod
     def update_full_name(self, user_id: int, first_name: str, last_name: str) -> Optional[Dict]:
         raise NotImplementedError
@@ -126,7 +126,7 @@ class UserRepository(AbstractUserRepository):
 
         return queryset
 
-    def create_user(self, user: user_domain_model.User) -> Dict:
+    def create_user(self, user: user_domain_model.User, token: str) -> Dict:
         user_object = UserOrm.objects.create(
             first_name = user.first_name,
             last_name = user.last_name,
@@ -136,6 +136,11 @@ class UserRepository(AbstractUserRepository):
             is_active = user.is_active,
             is_staff = user.is_staff,
             is_superuser = user.is_superuser
+        )
+
+        UserVerification.objects.create(
+            token = token,
+            user_id = user_object.id
         )
 
         return self.create_user_to_dict(

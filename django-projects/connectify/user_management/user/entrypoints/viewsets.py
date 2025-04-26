@@ -19,7 +19,8 @@ class UserViewSet(ViewSet):
     service_class = UserService
     paginator_class = CustomPagination
 
-    def get_service(self) -> UserService:
+    @property
+    def service(self) -> UserService:
         repository = UserRepository()
         validator = UserValidator(repository=repository)
         factory = UserFactory()
@@ -35,7 +36,7 @@ class UserViewSet(ViewSet):
         user_filters = {
             'search_key': request.query_params.get('search_key'),
         }
-        queryset = self.get_service().list_users(
+        queryset = self.service.list_users(
             user_filters
         )
         paginator = self.paginator_class()
@@ -45,7 +46,7 @@ class UserViewSet(ViewSet):
 
     def retrieve(self, request, pk):
         try:
-            data = self.get_service().get_user(
+            data = self.service.get_user(
                 user_id=pk
             )
             return Response(
@@ -61,7 +62,7 @@ class UserViewSet(ViewSet):
     @action(detail=False, methods=[HTTPMethod.POST])
     def register(self, request):
         try:
-            data = self.get_service().register_user(
+            data = self.service.register_user(
                 email=request.data.get("email"),
                 password=request.data.get("password"),
                 username=request.data.get("username"),
@@ -88,7 +89,7 @@ class UserViewSet(ViewSet):
     @action(detail=True, methods=[HTTPMethod.PATCH])
     def update_full_name(self, request, pk):
         try:
-            data = self.get_service().update_full_name(
+            data = self.service.update_full_name(
                 user_id=pk,
                 first_name=request.data.get("first_name"),
                 last_name=request.data.get("last_name")
@@ -110,7 +111,7 @@ class UserViewSet(ViewSet):
 
     def destroy(self, request, pk):
         try:
-            self.get_service().delete_user(
+            self.service.delete_user(
                 user_id=pk
             )
             return Response(

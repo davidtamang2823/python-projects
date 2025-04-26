@@ -92,7 +92,7 @@ class UserService(AbstractUserService):
         self.validator.validate_email_uniqueness(email=email)
         self.validator.validate_username_uniquness(username=username)
 
-        token = secrets.token_urlsafe(64)
+        token = secrets.token_urlsafe(48)
 
         user = self.factory.create_user(
             email=email,

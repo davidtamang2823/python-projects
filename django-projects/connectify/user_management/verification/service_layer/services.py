@@ -40,7 +40,7 @@ class TokenService(AbstractTokenService):
         self.validator.validate_user_is_active_or_not(verified_at=token_details.get('verified_at'))
         self.validator.validate_resend_eligibility(created_at=token_details.get('created_at'))
 
-        token = token_urlsafe(64)
+        token = token_urlsafe(48)
         
         user_verification_model = self.factory.create_user_verification(
             token=token,

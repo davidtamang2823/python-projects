@@ -1,3 +1,4 @@
+import secrets
 from abc import ABC, abstractmethod
 from typing import Dict, List
 
@@ -91,6 +92,8 @@ class UserService(AbstractUserService):
         self.validator.validate_email_uniqueness(email=email)
         self.validator.validate_username_uniquness(username=username)
 
+        token = secrets.token_urlsafe(64)
+
         user = self.factory.create_user(
             email=email,
             password=password,
@@ -99,12 +102,13 @@ class UserService(AbstractUserService):
             last_name=last_name,
             is_active=is_active,
             is_superuser=is_superuser,
-            is_staff=is_staff
+            is_staff=is_staff,
+            token=token
         )
 
         self.message_bus.dispatch_events(user.events)
 
-        return self.repository.create_user(user=user)
+        return self.repository.create_user(user=user, token=token)
     
     @atomic
     def update_full_name(

@@ -36,7 +36,8 @@ class TokenRepository(AbstractTokenRepository):
         return {
             'id': token_obj.id,
             'token': token_obj.token,
-            'verfied_at': token_obj.verified_at,
+            'is_verified': token_obj.is_verified,
+            'verified_at': token_obj.verified_at,
             'user_id': token_obj.user_id,
             'created_at': token_obj.created_at
         }
@@ -44,15 +45,17 @@ class TokenRepository(AbstractTokenRepository):
 
     def get_token_by_email_or_username(self, email_or_username: str) -> Optional[Dict]:
         token_obj = UserVerification.objects.filter(Q(user__email=email_or_username) | Q(user__username=email_or_username)).select_related('user').first()
-        return {
-            'id': token_obj.id,
-            'token': token_obj.token,
-            'verfied_at': token_obj.verified_at,
-            'user_id': token_obj.user_id,
-            'created_at': token_obj.created_at,
-            'email': token_obj.user.email,
-            'username': token_obj.user.username
-        }
+        if token_obj is not None:
+            return {
+                'id': token_obj.id,
+                'token': token_obj.token,
+                'verfied_at': token_obj.verified_at,
+                'is_verified': token_obj.is_verified,
+                'user_id': token_obj.user_id,
+                'created_at': token_obj.created_at,
+                'email': token_obj.user.email,
+                'username': token_obj.user.username
+            }
 
 
     def store_token(self, token: str, user_id: int):

@@ -1,0 +1,79 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .logo {
+            max-width: 150px;
+            height: auto;
+        }
+        .content {
+            background-color: #f9f9f9;
+            padding: 25px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #4CAF50;
+            color: white !important;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+            margin-top: 30px;
+        }
+        .code {
+            font-size: 24px;
+            letter-spacing: 3px;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            padding: 10px;
+            background: #eee;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="content">
+        <h2>Verify Your Email Address</h2>
+        
+        <p>Hello {% if username %}{{ username }}{% else %}User{% endif %},</p>
+        
+        Please verify your email address by clicking the button below:</p>
+        
+        <div style="text-align: center;">
+            <a href="{{ verification_url }}" class="button">Verify Email</a>
+        </div>
+        
+        <p>Or copy and paste this link into your browser:</p>
+        <p><a href="{{ verification_url }}">{{ verification_url }}</a></p>
+        
+        <p>If you didn't request this, please ignore this email.</p>
+    </div>
+
+</body>
+</html>

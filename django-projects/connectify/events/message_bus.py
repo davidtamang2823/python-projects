@@ -20,13 +20,12 @@ class MessageBus(metaclass=SingletonMeta):
 
     def register_handler(self, event_type: str):
         def decorator(handler: Callable):
-            def wrapper():
-                if self.registry.get(event_type) is None:
-                    self.registry[event_type] = set()
-                self.registry[event_type].add(handler)
-            return wrapper
+            if self.registry.get(event_type) is None:
+                self.registry[event_type] = set()
+            self.registry[event_type].add(handler)
+            return handler
         return decorator
-    
+
     def dispatch_event(self, event: Event):
         handlers = self.registry.get(event.event_type, set())
         for handler in handlers:

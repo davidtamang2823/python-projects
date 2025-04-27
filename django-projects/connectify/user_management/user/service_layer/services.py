@@ -23,7 +23,7 @@ class AbstractUserService(ABC):
     @abstractmethod
     def register_user(
         self,
-        email: str, 
+        email: str,
         password: str, 
         username: str, 
         first_name: str, 

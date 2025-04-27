@@ -31,13 +31,14 @@ class TokenService(AbstractTokenService):
         token_details = self.repository.get_token(token=token)
         self.validator.validate_token_is_none_or_not(token_details=token_details)
         self.validator.validate_token_is_expired(created_at=token_details.get('created_at'))
+        self.validator.validate_user_is_verified_or_not(is_verified=token_details.get('is_verified'))
         self.repository.update_verification(token=token)
 
     @atomic
     def resend_verification_email(self, email_or_username: str):
         token_details = self.repository.get_token_by_email_or_username(email_or_username=email_or_username)
         self.validator.validate_user_registered_or_not(token_details=token_details)
-        self.validator.validate_user_is_active_or_not(verified_at=token_details.get('verified_at'))
+        self.validator.validate_user_is_verified_or_not(is_verified=token_details.get('is_verified'))
         self.validator.validate_resend_eligibility(created_at=token_details.get('created_at'))
 
         token = token_urlsafe(48)

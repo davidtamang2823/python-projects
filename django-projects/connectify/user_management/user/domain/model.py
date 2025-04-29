@@ -3,6 +3,7 @@ from typing import NewType, List, Optional
 
 from events import Event
 from user_management.user.domain import exceptions as user_domain_exceptions
+from user_management.common import exceptions as user_management_common_exceptions
 
 UserId = NewType("UserId", int)
 
@@ -43,7 +44,7 @@ class User(Base):
     @classmethod
     def validate_password(cls, value):
         if value is not None and len(value) != 8:
-            raise user_domain_exceptions.InvalidPasswordLength
+            raise user_management_common_exceptions.InvalidPasswordLength
         return value
 
     @field_validator('email', mode="after")

@@ -35,6 +35,14 @@ class AbstractUserRepository(abc.ABC):
     @abc.abstractmethod
     def update_full_name(self, user_id: int, first_name: str, last_name: str) -> Optional[Dict]:
         raise NotImplementedError
+    
+    @abc.abstractmethod
+    def update_password(self, user_id: int, password: str) -> None:
+        raise NotImplementedError
+    
+    @abc.abstractmethod
+    def update_is_active_by_id(self, email_or_username: str, is_active: bool) -> None:
+        raise NotImplementedError
 
     @abc.abstractmethod
     def delete_user(self, user_id: int) -> bool:
@@ -127,17 +135,17 @@ class UserRepository(AbstractUserRepository):
         return queryset
 
     def create_user(self, user: user_domain_model.User, token: str) -> Dict:
-        user_object = UserOrm.objects.create(
+        user_object = UserOrm(
             first_name = user.first_name,
             last_name = user.last_name,
             email = user.email,
             username = user.username,
-            password = user.password,
             is_active = user.is_active,
             is_staff = user.is_staff,
             is_superuser = user.is_superuser
         )
-
+        user_object.set_password(user.password)
+        user_object.save()
         UserVerification.objects.create(
             token = token,
             user_id = user_object.id
@@ -168,6 +176,24 @@ class UserRepository(AbstractUserRepository):
             email= user_object.email,
             username= user_object.username   
         )
+
+    def update_password(self, user_id: int, password: str) -> None:
+        try:
+            user_object = UserOrm.objects.get(id=user_id)
+        except UserOrm.DoesNotExist:
+            return
+        
+        user_object.set_password(password)
+        user_object.save()
+
+    def update_is_active_by_id(self, user_id: int, is_active: bool) -> None:
+        try:
+            user_object = UserOrm.objects.get(id=user_id)
+        except UserOrm.DoesNotExist:
+            return
+
+        user_object.is_active = is_active
+        user_object.save()
 
     def delete_user(self, user_id: int) -> bool:
         try:

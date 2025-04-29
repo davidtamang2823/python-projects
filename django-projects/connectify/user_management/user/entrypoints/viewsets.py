@@ -11,6 +11,7 @@ from user_management.user.service_layer.services import UserService
 from user_management.user.service_layer.validator import UserValidator
 from user_management.user.domain import exceptions as domain_exceptions
 from user_management.user.service_layer import exceptions as services_exceptions
+from user_management.common import exceptions as user_management_common_exceptions
 from user_management.user.adapters.repository import UserRepository
 from user_management.user.domain.factory import UserFactory
 
@@ -75,7 +76,7 @@ class UserViewSet(ViewSet):
             )
         except (
             domain_exceptions.InvalidEmailLength, 
-            domain_exceptions.InvalidPasswordLength,
+            user_management_common_exceptions.InvalidPasswordLength,
             domain_exceptions.InvalidUserFullNameLength,
             domain_exceptions.InvalidUserNameLength,
             services_exceptions.EmailAlreadyExists,

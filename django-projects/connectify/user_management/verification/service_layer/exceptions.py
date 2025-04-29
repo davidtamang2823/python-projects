@@ -30,7 +30,7 @@ class TokenNotExpired(Exception):
 
 
     def __str__(self):
-        return "User verification email has been sent already."
+        return "Token not expired."
     
 
 class UserAlreadyVerified(Exception):

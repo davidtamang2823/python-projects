@@ -6,12 +6,6 @@ class InvalidUserFullNameLength(Exception):
         return "First Name or Last Name Length Should Be Between 3 And 150."
     
 
-class InvalidPasswordLength(Exception):
-
-    def __str__(self):
-        return "Password Length Should Be Exactly 8."
-    
-
 class InvalidUserNameLength(Exception):
 
 

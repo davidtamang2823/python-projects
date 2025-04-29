@@ -2,7 +2,10 @@ from typing import Optional, Dict
 from abc import ABC, abstractmethod
 from django.utils import timezone
 from django.db.models import Q
-from user_management.models import UserVerification
+from django.contrib.auth import get_user_model
+from user_management.models import UserVerification, PasswordResetVerification
+
+UserOrm = get_user_model()
 
 class AbstractTokenRepository(ABC):
 
@@ -23,6 +26,26 @@ class AbstractTokenRepository(ABC):
     def get_token_by_email_or_username(self, email_or_username: str) -> Optional[Dict]:
         raise NotImplementedError
     
+
+class AbstractPasswordResetRepository(ABC):
+
+
+    @abstractmethod
+    def get_token(self, token: str) -> Optional[Dict]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_token_by_email(self, email: str) -> Optional[Dict]:
+        raise NotImplementedError
+    
+    @abstractmethod
+    def store_token(self, token: str, user_id: int):
+        raise NotImplementedError
+    
+    @abstractmethod
+    def update_verfification(self, token: str):
+        raise NotImplementedError
+
 
 class TokenRepository(AbstractTokenRepository):
 
@@ -85,3 +108,52 @@ class TokenRepository(AbstractTokenRepository):
             'user_id': token_obj.user_id,
             'created_at': token_obj.created_at
         }
+    
+
+class PasswordResetRepository(AbstractPasswordResetRepository):
+
+
+    def get_token(self, token: str) -> Optional[Dict]:
+        try:
+            password_reset_obj = PasswordResetVerification.objects.get(token=token)
+        except PasswordResetVerification.DoesNotExist:
+            return
+        
+        return {
+            "reset_at" : password_reset_obj.reset_at,
+            "created_at" : password_reset_obj.created_at,
+            "token" : password_reset_obj.token,
+            "user_id": password_reset_obj.user_id
+        }
+
+    def get_token_by_email(self, email: str) -> Optional[Dict]:
+        try:
+            password_reset_obj = PasswordResetVerification.objects.get(user__email=email)
+        except PasswordResetVerification.DoesNotExist:
+            return
+
+        return {
+            "reset_at" : password_reset_obj.reset_at,
+            "created_at" : password_reset_obj.created_at,
+            "token" : password_reset_obj.token,
+            "user_id": password_reset_obj.user_id
+        }
+        
+    def store_token(self, token: str, user_id: int):
+        PasswordResetVerification.objects.filter(
+            user_id = user_id
+        ).delete()
+        PasswordResetVerification.objects.create(
+            token = token,
+            user_id = user_id
+        )
+
+
+    def update_verfification(self, token: str):
+        try:
+            password_reset_obj = PasswordResetVerification.objects.get(token=token)
+        except PasswordResetVerification.DoesNotExist:
+            return
+
+        password_reset_obj.reset_at = timezone.now()
+        password_reset_obj.save()

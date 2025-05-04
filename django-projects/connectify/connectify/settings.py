@@ -157,3 +157,8 @@ EMAIL_PORT=env('EMAIL_PORT')
 EMAIL_HOST_USER=env('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD=env('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS=env.bool('EMAIL_USE_TLS', default=True)
+
+#CUSTOM AUTHENTICATION
+AUTHENTICATION_BACKENDS = [
+    'user_management.backends.auth_backend.EmailOrUsernameBackend'
+]

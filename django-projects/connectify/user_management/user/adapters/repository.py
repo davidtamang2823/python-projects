@@ -27,6 +27,10 @@ class AbstractUserRepository(abc.ABC):
     @abc.abstractmethod
     def get_by_username(self, username: str) -> Optional[Dict]:
         raise NotImplementedError
+    
+    @abc.abstractmethod
+    def get_by_email_or_username(self, email_or_username: str) -> Optional[object]:
+        raise NotImplementedError
 
     @abc.abstractmethod
     def create_user(self, user: user_domain_model.User, token: str) -> Dict:
@@ -42,6 +46,10 @@ class AbstractUserRepository(abc.ABC):
     
     @abc.abstractmethod
     def update_is_active_by_id(self, email_or_username: str, is_active: bool) -> None:
+        raise NotImplementedError
+    
+    @abc.abstractmethod
+    def update_last_login(self, user_id: int, last_login) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -104,6 +112,10 @@ class UserRepository(AbstractUserRepository):
             email= user_object.email,
             username= user_object.username
         )
+
+    def get_by_email_or_username(self, email_or_username: str) -> Optional[object]:
+        user_object = UserOrm.objects.filter(Q(email__iexact=email_or_username) | Q(username__iexact=email_or_username)).first()
+        return user_object
 
     def list_users(self, user_filters: Dict = None) -> List[Dict]:
         _q = Q()
@@ -194,6 +206,9 @@ class UserRepository(AbstractUserRepository):
 
         user_object.is_active = is_active
         user_object.save()
+
+    def update_last_login(self, user_id: int, last_login) -> None:
+        UserOrm.objects.filter(id=user_id).update(last_login=last_login)
 
     def delete_user(self, user_id: int) -> bool:
         try:

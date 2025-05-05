@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.viewsets import ViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from common.custom_pagination import CustomPagination
 from events import message_bus
@@ -19,6 +20,7 @@ class UserViewSet(ViewSet):
 
     service_class = UserService
     paginator_class = CustomPagination
+    permission_classes = [IsAuthenticated]
 
     @property
     def service(self) -> UserService:
@@ -60,7 +62,7 @@ class UserViewSet(ViewSet):
                 status = status.HTTP_404_NOT_FOUND
             )
 
-    @action(detail=False, methods=[HTTPMethod.POST])
+    @action(detail=False, methods=[HTTPMethod.POST], permission_classes=[AllowAny])
     def register(self, request):
         try:
             data = self.service.register_user(

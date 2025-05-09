@@ -17,5 +17,6 @@ Including another URLconf
 from django.urls import path, include
 
 urlpatterns = [
-   path('api/', include('user_management.urls'))
+   path('api/', include('user_management.urls')),
+   path('api/', include('chat.urls'))
 ]

@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.staticfiles',
-    'user_management'
+    'user_management',
+    'chat'
 ]
 
 MIDDLEWARE = [

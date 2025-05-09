@@ -13,7 +13,7 @@ class Base(BaseModel):
 
 
 
-class UserVerification(BaseModel):
+class UserVerification(Base):
 
 
     token: str
@@ -27,7 +27,7 @@ class UserVerification(BaseModel):
         return value
     
 
-class PasswordReset(BaseModel):
+class PasswordReset(Base):
 
 
     token: str

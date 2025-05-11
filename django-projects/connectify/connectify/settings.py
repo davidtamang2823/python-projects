@@ -112,10 +112,6 @@ REST_FRAMEWORK = {
     )
 }
 
-
-
-
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
@@ -163,3 +159,13 @@ EMAIL_USE_TLS=env.bool('EMAIL_USE_TLS', default=True)
 AUTHENTICATION_BACKENDS = [
     'user_management.backends.auth_backend.EmailOrUsernameBackend'
 ]
+
+#DJANGO CHANNELS
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": env('CHANNEL_BACKEND'),
+        "CONFIG": {
+            "hosts": [(env('CHANNEL_HOST'), env('CHANNEL_PORT'))],
+        },
+    },
+}

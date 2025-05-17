@@ -6,9 +6,13 @@ class AbstractPrivateChatFactory(ABC):
 
 
     @abstractmethod
-    def create(self, sender_id: int, receiver_id: int, content: str) -> PrivateChatModel:
+    def create_private_chat(self, sender_id: int, receiver_id: int, content: str) -> PrivateChatModel:
         raise NotImplementedError
     
+    @abstractmethod
+    def update_private_chat(self, message_id: int, sender_id: int, receiver_id: int, content: str) -> PrivateChatModel:
+        raise NotImplementedError
+
 
 class PrivateChatFactory(AbstractPrivateChatFactory):
 
@@ -19,9 +23,10 @@ class PrivateChatFactory(AbstractPrivateChatFactory):
             receiver_id=receiver_id, 
             content=content
         )
-    
-    def update_private_chat(self, sender_id: int, receiver_id: int, content: str) -> PrivateChatModel:
+
+    def update_private_chat(self, message_id: int, sender_id: int, receiver_id: int, content: str) -> PrivateChatModel:
         return PrivateChatModel(
+            id=message_id,
             sender_id=sender_id, 
             receiver_id=receiver_id, 
             content=content

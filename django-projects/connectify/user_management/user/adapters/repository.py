@@ -17,6 +17,10 @@ class AbstractUserRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
+    def get_by_id_object(self, user_id: int) -> Optional[object]:
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def get_by_email(self, email: str) -> Optional[Dict]:
         raise NotImplementedError
 
@@ -84,6 +88,14 @@ class UserRepository(AbstractUserRepository):
             email= user_object.email,
             username= user_object.username
         )
+    
+    def get_by_id_object(self, user_id: int) -> Optional[object]:
+        try:
+            user_object = UserOrm.objects.get(id=user_id)
+        except UserOrm.DoesNotExist:
+            return
+
+        return user_object
 
     def get_by_email(self, email: str) -> Optional[Dict]:
         try:

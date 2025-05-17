@@ -1,0 +1,78 @@
+services:
+  connectify_web:
+    image: connectify:1.0
+    container_name: connectify_web
+    env_file:
+      - .local.env
+    ports:
+      - 8000:8000
+    networks:
+      - connectify_network
+    volumes:
+      - ./:/usr/src/app/
+    depends_on:
+      - connectify_db
+    command: ["daphne", "-b", "0.0.0.0", "-p", "8000", "connectify.asgi:application"]    
+    restart: always
+
+  connectify_db:
+    image: postgres:14.7
+    container_name: connectify_db
+    env_file:
+      - .local.env
+    ports:
+      - 5432:5432
+    networks:
+      - connectify_network
+    volumes:
+      - connectify_postgres_volume:/var/lib/postgresql/data
+    restart: always
+
+  connectify_redis:
+    image: redis:7.0.15
+    container_name: connectify_redis
+    ports:
+      - 6379:6379
+    networks:
+      - connectify_network
+    volumes:
+      - connectify_redis_volume:/var/lib/redis
+    restart: always
+
+  connectify_nginx:
+    image: nginx
+    container_name: connectify_nginx
+    ports:
+      - 8001:80
+    networks:
+      - connectify_network
+    volumes:
+      - ./static:/usr/src/app/static
+      - ./media:/usr/src/app/media
+    restart: always
+
+  connectify_worker:
+    image: connectify:1.0
+    container_name: connectify_worker
+    env_file:
+      - .local.env
+    networks:
+      - connectify_network
+    volumes:
+      - ./:/usr/src/app/
+    command: ["celery", "-A", "connectify", "worker", "--loglevel=info"]
+    depends_on:
+      - connectify_redis
+    restart: always
+
+networks:
+  connectify_network:
+    external: true
+
+volumes:
+  connectify_postgres_volume:
+    external: true
+
+  connectify_redis_volume:
+    external: true
+
